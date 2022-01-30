@@ -5,7 +5,10 @@ import json
 import time
 import pyfiglet
 import sys
+import concurrent.futures
 import argparse
+import os
+import socket
 
 class style():
     BLACK = '\033[30m'
@@ -26,7 +29,7 @@ banner = pyfiglet.figlet_format("Dns enumeration...")
 print(banner)
 print(style.BLUE +'[*] Dns enumeration [*] ')
 print(style.RED + 'Coded By Eng Yazeed ')
-print(style.CYAN + " [*] instagram COMMPLICATED [*] ")
+
 
 
 
@@ -39,6 +42,19 @@ class sub_domains:
 
 		self.target = target
 		self.out = out
+
+		
+
+	def is_reachable(self , url):
+
+		try:
+			socket.gethostbyname(url)
+			return(f"{style.RED}"+ f"[*] sub is pingable .  {url} [*] " )
+		except socket.error:
+			return ("Host not reachable")
+			pass
+
+
 
 
 	def dns_dumpster(self):
@@ -77,18 +93,27 @@ class sub_domains:
 		for x in soup.find_all('td' , class_='col-md-4'):
 			c = x.text.split()
 			for line in c:
+				
+
 				if self.target not in line:
 					pass
 				else:
 					with open(self.out , 'a') as infile:
 						infile.write("\n")
-						infile.write(line)
-						print(style.CYAN+"******************************************" + "\n")
+						infile.write(f"https://{line}")
+						print(self.is_reachable(line))
 
-						print(f"{style.GREEN} Found a sub  {line}" + "\n")
 						
-						print(style.CYAN+"******************************************" + "\n")
+
+
 		print(f' [*] Result saved in {self.out} [*]')
+
+		
+	# def Checking(self):
+	# 	print(self.status(f"http://{self.dns_dumpster()}"))
+
+
+
 
 
 
@@ -96,6 +121,7 @@ def get_args():
 	parser = argparse.ArgumentParser(description='Dns enumeration')
 	parser.add_argument('-t', '--target', dest="target", required=True, action='store', help='Target to get enumerate Dns . ')
 	parser.add_argument('-f', '--file', dest="file", required=True, action='store', help='fie name to save output.')
+
 	args = parser.parse_args()
 	return args
 
@@ -106,5 +132,7 @@ fileo = args.file
 
 if __name__ == '__main__':
 
-	d = sub_domains(target , fileo)
+	d = sub_domains(target , fileo )
+
+
 	d.dns_dumpster()
